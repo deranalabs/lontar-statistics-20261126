@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// Topics: the index of all seven topics, and one topic's page with a chart card per indicator.
+// Topics: the index of every topic, and one topic's page with a chart card per indicator.
 
 import { h, setTitle } from '../core/dom.js';
 import { TOPICS, HOME, topicById } from '../core/indicators.js';
@@ -19,7 +19,7 @@ function renderIndex(view, data) {
   setTitle('Topics');
   view.append(
     h('p', { class: 'eyebrow' }, 'Topics'),
-    h('h1', null, 'Seven topics, every indicator'),
+    h('h1', null, `${TOPICS.length} topics, every indicator`),
     topicPills(null),
     h('div', { class: 'topic-index' }, TOPICS.map((topic) => h('section', { class: 'leaf' },
       h('h2', null, h('a', { href: `#/topic/${topic.id}` }, topic.name)),

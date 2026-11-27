@@ -1,6 +1,38 @@
 [
-  { "file": "1-overview.jpg", "path": "#/", "viewport": { "width": 1280, "height": 800 } },
-  { "file": "2-indicator.jpg", "path": "#/indicator/internet-users", "viewport": { "width": 1280, "height": 800 }, "pointer": { "x": 560, "y": 330 } },
-  { "file": "3-compare.jpg", "path": "#/compare/gdp-per-person-ppp", "viewport": { "width": 1280, "height": 800 }, "pointer": { "x": 1000, "y": 400 } },
-  { "file": "4-phone.jpg", "path": "#/", "viewport": { "width": 390, "height": 844 } }
+  {
+    "file": "1-overview.jpg",
+    "path": "#/",
+    "viewport": {
+      "width": 1280,
+      "height": 800
+    }
+  },
+  {
+    "file": "2-provinces.jpg",
+    "path": "#/provinces",
+    "viewport": {
+      "width": 1280,
+      "height": 800
+    }
+  },
+  {
+    "file": "3-indicator.jpg",
+    "path": "#/indicator/internet-users",
+    "viewport": {
+      "width": 1280,
+      "height": 800
+    },
+    "pointer": {
+      "x": 560,
+      "y": 330
+    }
+  },
+  {
+    "file": "4-phone.jpg",
+    "path": "#/provinces",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    }
+  }
 ]

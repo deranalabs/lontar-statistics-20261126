@@ -8,23 +8,20 @@ import { formatValue } from '../core/format.js';
 import { COUNTRY_COLORS } from '../core/widgets.js';
 import { mountLineChart } from '../charts/line-chart.js';
 import { rankedBars } from '../charts/ranked-bars.js';
+import { rankGroup, ordinal } from '../core/rank.js';
 
 const COMPARABLE = INDICATORS.filter((indicator) => indicator.asean);
 const DEFAULT_SHOWN = ['IDN', 'MYS', 'PHL', 'THA', 'VNM', 'KHM'];
 const shown = new Set(DEFAULT_SHOWN);
 
-export function ordinal(n) {
-  const tens = n % 100;
-  const suffix = tens >= 11 && tens <= 13 ? 'th' : ({ 1: 'st', 2: 'nd', 3: 'rd' })[n % 10] ?? 'th';
-  return `${n}${suffix}`;
-}
-
 export async function render(view, route) {
   const indicator = indicatorById(route.args[0])?.asean ? indicatorById(route.args[0]) : indicatorById('life-expectancy');
   const record = await loadIndicator(indicator.id);
   setTitle(`Compare ASEAN: ${indicator.name}`);
-  const countries = Object.keys(COUNTRIES).filter((code) => latest(pointsOf(record, code)));
-  const latestOf = Object.fromEntries(countries.map((code) => [code, latest(pointsOf(record, code))]));
+  // One computation feeds the sentence and the bar list: every ASEAN member with a figure, ranked.
+  const ranking = rankGroup(record, COUNTRIES);
+  const countries = ranking.rows.map((row) => row.code);
+  const latestOf = Object.fromEntries(ranking.rows.map((row) => [row.code, row.point]));
 
   const barsBox = h('div');
   const linesBox = h('div', { class: 'chart-box' });
@@ -33,16 +30,15 @@ export async function render(view, route) {
   const toggles = h('div', { class: 'toggles', role: 'group', 'aria-label': 'Countries shown' });
   const legend = h('p', { class: 'legend' });
 
-  const sortedAll = [...countries].sort((a, b) => latestOf[b].value - latestOf[a].value);
-  const homeRank = sortedAll.indexOf(HOME) + 1;
+  const homeRank = ranking.home?.rank;
   rankLine.replaceChildren(homeRank
-    ? h('span', null, 'Indonesia ranks ', h('b', null, ordinal(homeRank)), ` of ${countries.length} ASEAN members with data, at ${formatValue(latestOf[HOME].value, indicator.unit)} in ${latestOf[HOME].year}.`)
+    ? h('span', null, 'Indonesia ranks ', h('b', null, ordinal(homeRank)), ` of ${ranking.rows.length} ASEAN members with data, at ${formatValue(latestOf[HOME].value, indicator.unit)} in ${latestOf[HOME].year}. All ${ranking.rows.length} are listed below.`)
     : 'Indonesia reports no figure for this indicator.');
 
   function draw() {
     const picked = countries.filter((code) => shown.has(code));
     legend.replaceChildren(...picked.map((code) => h('span', { style: `--c:${COUNTRY_COLORS[code]}` }, COUNTRIES[code])));
-    barsBox.replaceChildren(rankedBars(picked.map((code) => ({ id: code, label: COUNTRIES[code], value: latestOf[code].value, year: latestOf[code].year, color: COUNTRY_COLORS[code] })), indicator.unit, HOME));
+    barsBox.replaceChildren(rankedBars(countries.map((code) => ({ id: code, label: COUNTRIES[code], value: latestOf[code].value, year: latestOf[code].year, color: COUNTRY_COLORS[code] })), indicator.unit, HOME));
     toggles.replaceChildren(...countries.map((code) => h('button', {
       type: 'button', style: `--c:${COUNTRY_COLORS[code]}`, 'aria-pressed': String(shown.has(code)),
       onclick: () => { if (shown.has(code) && shown.size > 1) shown.delete(code); else shown.add(code); draw(); },

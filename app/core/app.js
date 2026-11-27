@@ -9,6 +9,11 @@ const PAGES = {
   compare: () => import('../pages/compare.js'),
   catalogue: () => import('../pages/catalogue.js'),
   sources: () => import('../pages/sources.js'),
+  provinces: () => import('../pages/provinces.js'),
+  province: () => import('../pages/province.js'),
+  'province-compare': () => import('../pages/province-compare.js'),
+  rankings: () => import('../pages/rankings.js'),
+  story: () => import('../pages/story.js'),
 };
 
 export function parseRoute(hash) {

@@ -5,7 +5,7 @@ const LEVEL_UNITS = new Set(['people', 'US$', 'international $', 'passengers', '
 const SCALES = [[1e12, 'trillion'], [1e9, 'billion'], [1e6, 'million']];
 const compact = new Intl.NumberFormat('en-GB', { notation: 'compact', maximumFractionDigits: 1 });
 
-const fixed = (value, digits) => value.toLocaleString('en-GB', { minimumFractionDigits: digits, maximumFractionDigits: digits });
+export const fixed = (value, digits) => value.toLocaleString('en-GB', { minimumFractionDigits: digits, maximumFractionDigits: digits });
 const digitsFor = (value) => (Math.abs(value) >= 1000 ? 0 : Math.abs(value) >= 1 ? 1 : 2);
 
 export function splitNumber(value) {

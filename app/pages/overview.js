@@ -8,6 +8,9 @@ import { headlineParts } from '../core/format.js';
 import { changeChip, sourceLine } from '../core/widgets.js';
 import { mountLineChart } from '../charts/line-chart.js';
 import { sparkline } from '../charts/sparkline.js';
+import { tileMap } from '../charts/tile-map.js';
+import { loadProvinces } from '../core/provinces.js';
+import { CHECKS } from '../data/retrieval.js';
 
 const HEADLINES = [
   ['population', 'Population'], ['gdp-growth', 'Real growth'], ['gdp-per-person', 'GDP per person'], ['inflation', 'Inflation'],
@@ -46,7 +49,10 @@ function searchForm() {
 
 export async function render(view) {
   setTitle('Indonesia in figures');
-  const data = await loadAll();
+  const [data, { provinces }] = await Promise.all([loadAll(), loadProvinces()]);
+  // A publisher is the last bracketed acronym of each producer line the World Bank names (ILO, IMF, WHO ...), plus BPS for the provinces.
+  const producers = new Set(['BPS', ...Object.values(data).flatMap((record) => record.org.split('; ').map((item) => item.match(/\(([^()]+)\)\s*$/)?.[1]).filter(Boolean))]).size;
+  const biggest = [...provinces].sort((a, b) => b.population - a.population);
   const figures = Object.values(data).flatMap((record) => Object.values(record).filter(Array.isArray)).flat().filter((v) => v != null).length;
   const newest = Math.max(...Object.values(data).map((record) => latest(pointsOf(record, HOME))?.year ?? 0));
   const search = searchForm();
@@ -76,21 +82,26 @@ export async function render(view) {
         h('h1', null, 'Indonesia in figures'),
         h('p', { class: 'counts' },
           h('span', null, h('b', null, String(INDICATORS.length)), ' indicators'),
-          h('span', null, h('b', null, String(TOPICS.length)), ' topics'),
-          h('span', null, h('b', null, String(Object.keys(COUNTRIES).length)), ' ASEAN countries'),
+          h('span', null, h('b', null, String(provinces.length)), ' provinces'),
+          h('span', null, h('b', null, String(producers)), ' publishers'),
+          h('span', null, h('b', null, CHECKS.toLocaleString('en-GB')), ' cross-checks'),
           h('span', null, h('b', null, figures.toLocaleString('en-GB')), ' figures'),
           h('span', null, h('b', null, `2000–${newest}`)))),
       search),
     h('div', { class: 'overview-grid' },
       h('section', { class: 'tiles', 'aria-label': 'Headline figures' },
         HEADLINES.map(([id, label]) => headlineTile(indicatorById(id), label, pointsOf(data[id], HOME)))),
+      h('section', { class: 'leaf provinces-card' },
+        h('h2', null, `${provinces.length} provinces by population`),
+        tileMap(provinces, (p) => p.population, { onPick: (iso) => { location.hash = `#/province/${iso}`; }, label: 'Indonesian provinces by population' }),
+        h('p', { class: 'source' }, `Most people: ${biggest[0].name}, ${(biggest[0].population / 1e6).toFixed(1)} million. Fewest: ${biggest.at(-1).name}, ${(biggest.at(-1).population / 1e6).toFixed(2)} million. `, h('a', { href: '#/provinces' }, 'All provinces, ranked'))),
       h('section', { class: 'leaf trend' },
         h('h2', null, `GDP per person, ${first.year}–${last.year}`),
         h('p', { class: 'legend' }, trendSeries.map((line) => h('span', { style: `--c:${line.color}` }, line.label))),
         chartBox,
         readout,
         h('p', { class: 'source' }, `World Bank ${gdp.code} and ${ppp.code}, current prices. `, h('a', { href: `#/indicator/${gdp.id}` }, 'Open the indicator')))),
-    h('div', { class: 'section-head' }, h('h2', null, 'Seven topics'), h('a', { href: '#/topics' }, 'All topics and indicators')),
+    h('div', { class: 'section-head' }, h('h2', null, `${TOPICS.length} topics`), h('a', { href: '#/topics' }, 'All topics and indicators')),
     h('section', { class: 'topic-cards' }, TOPICS.map((topic) => topicCard(topic, data))),
   );
   mountLineChart(chartBox, { series: trendSeries, height: 196, label: 'GDP per person in Indonesia', onHover: showReadout });

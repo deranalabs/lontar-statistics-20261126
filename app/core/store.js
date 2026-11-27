@@ -6,6 +6,8 @@ import { TOPICS, indicatorById } from './indicators.js';
 const LOADERS = {
   people: () => import('../data/people.js'),
   economy: () => import('../data/economy.js'),
+  trade: () => import('../data/trade.js'),
+  gender: () => import('../data/gender.js'),
   work: () => import('../data/work.js'),
   health: () => import('../data/health.js'),
   education: () => import('../data/education.js'),

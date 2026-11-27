@@ -4,9 +4,11 @@
 
 # Lontar · Indonesia in figures
 
-Lontar is a national statistics site for Indonesia: headline figures, seven topics, a page per indicator with chart, table, CSV and citation, and comparisons with the ASEAN neighbours.
-It is static files under `app/` (ES modules, CSS and hand-drawn SVG charts), with no build step and no network request; run `node serve.ts` and open http://localhost:8080.
+Lontar is a national statistics site for Indonesia: all 38 provinces (tile map, ranking table, a page each, province compare), over a hundred national indicators in nine topics, ASEAN and G20 rankings, five computed findings, and a page per indicator with chart, table, CSV and citation.
+It is static files under `app/` (ES modules, CSS and hand-drawn SVG charts), with no build step and no network request; run `node serve.ts` and open http://localhost:8080. Each page and each topic's data load on demand with `import()`.
 
-Data: World Bank, World Development Indicators (api.worldbank.org/v2), retrieved 26 November 2026, licensed CC BY 4.0.
+Data:
+- National series: World Bank, World Development Indicators (api.worldbank.org/v2) for Indonesia, the ASEAN members and the G20, retrieved 27 November 2026, CC BY 4.0. Every stored value was compared with the downloaded file (0 differences).
+- Provinces: Statistics Indonesia (BPS) figures as tabulated on three English Wikipedia pages (CC BY-SA 4.0), retrieved 27 November 2026; revision ids are on the Sources page. Nothing is estimated.
 
-MIT, see LICENSE.
+Code: MIT, see LICENSE. Province data file: CC BY-SA 4.0 (`app/data/provinces.js`).
